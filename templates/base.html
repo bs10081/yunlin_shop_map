@@ -4,43 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}斗六舊城漫遊{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    <!-- Open Graph / Discord Preview Tags -->
+    <meta property="og:title" content="{% block og_title %}斗六舊城漫遊{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}探索歷史•體驗文化•感受生活 - 一趟穿越時空的文化之旅，帶您品味在地特色、感受歷史風華{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:image" content="{{ url_for('static', filename='images/laojiewanguo_index.jpeg', _external=True) }}">
+    <meta property="og:locale" content="zh_TW">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <nav class="navbar">
+    <nav class="navbar" role="navigation" aria-label="主導航">
         <div class="nav-brand">
-            <a href="{{ url_for('index') }}">
-                <i class="fas fa-map-marked-alt"></i>
+            <a href="{{ url_for('index') }}" aria-label="回到首頁">
+                <i class="fas fa-map-marked-alt" aria-hidden="true"></i>
                 斗六舊城漫遊
             </a>
         </div>
-        <button class="nav-toggle">
-            <i class="fas fa-bars"></i>
+        <button class="nav-toggle" aria-label="開啟導航選單" aria-expanded="false" aria-controls="navMenu">
+            <i class="fas fa-bars" aria-hidden="true"></i>
         </button>
-        <ul class="nav-menu">
+        <ul class="nav-menu" id="navMenu">
             <li class="nav-item">
-                <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
-                    <i class="fas fa-home"></i> 首頁
+                <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" {% if request.endpoint == 'index' %}aria-current="page"{% endif %}>
+                    <i class="fas fa-home" aria-hidden="true"></i> 首頁
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ url_for('food') }}" class="nav-link {% if request.endpoint == 'food' %}active{% endif %}">
-                    <i class="fas fa-utensils"></i> 美食地圖
+                <a href="{{ url_for('food') }}" class="nav-link {% if request.endpoint == 'food' %}active{% endif %}" {% if request.endpoint == 'food' %}aria-current="page"{% endif %}>
+                    <i class="fas fa-utensils" aria-hidden="true"></i> 美食地圖
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ url_for('culture') }}" class="nav-link {% if request.endpoint == 'culture' %}active{% endif %}">
-                    <i class="fas fa-landmark"></i> 文化景點
+                <a href="{{ url_for('culture') }}" class="nav-link {% if request.endpoint == 'culture' %}active{% endif %}" {% if request.endpoint == 'culture' %}aria-current="page"{% endif %}>
+                    <i class="fas fa-landmark" aria-hidden="true"></i> 文化景點
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ url_for('shopping') }}" class="nav-link {% if request.endpoint == 'shopping' %}active{% endif %}">
-                    <i class="fas fa-store"></i> 特色商店
+                <a href="{{ url_for('shopping') }}" class="nav-link {% if request.endpoint == 'shopping' %}active{% endif %}" {% if request.endpoint == 'shopping' %}aria-current="page"{% endif %}>
+                    <i class="fas fa-store" aria-hidden="true"></i> 特色商店
                 </a>
             </li>
         </ul>
     </nav>
+
+    {% block breadcrumb %}
+    {% endblock %}
 
     <div class="container">
         {% block content %}{% endblock %}
@@ -48,8 +61,13 @@
 
     {% block scripts %}
     <script>
-        document.querySelector('.nav-toggle').addEventListener('click', function() {
-            document.querySelector('.nav-menu').classList.toggle('active');
+        const navToggle = document.querySelector('.nav-toggle');
+        const navMenu = document.querySelector('.nav-menu');
+
+        navToggle.addEventListener('click', function() {
+            const isExpanded = navMenu.classList.toggle('active');
+            navToggle.setAttribute('aria-expanded', isExpanded);
+            navToggle.setAttribute('aria-label', isExpanded ? '關閉導航選單' : '開啟導航選單');
         });
 
         function toggleStory(button) {

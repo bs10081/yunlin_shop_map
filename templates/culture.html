@@ -2,6 +2,26 @@
 
 {% block title %}斗六舊城漫遊 - 文化景點{% endblock %}
 
+{% block breadcrumb %}
+<nav class="breadcrumb" aria-label="麵包屑導航">
+    <div class="breadcrumb-container">
+        <ol class="breadcrumb-list">
+            <li class="breadcrumb-item">
+                <a href="{{ url_for('index') }}">
+                    <i class="fas fa-home"></i> 首頁
+                </a>
+            </li>
+            <li class="breadcrumb-separator">
+                <i class="fas fa-chevron-right"></i>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                文化景點
+            </li>
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
 {% block content %}
 <div class="page-header">
     <h1>文化景點</h1>
@@ -13,7 +33,7 @@
     <div class="culture-card">
         {% if item.image %}
         <div class="culture-image">
-            <img src="{{ url_for('static', filename='images/' + item.image) }}" alt="{{ item.title }}">
+            <img src="{{ url_for('static', filename='images/' + item.image) }}" alt="{{ item.title }}" loading="lazy">
         </div>
         {% endif %}
         <div class="culture-info">

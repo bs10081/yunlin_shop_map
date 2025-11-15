@@ -14,15 +14,24 @@
     <div class="story-main-content">
         {% if image %}
         <div class="story-image">
-            <img src="{{ url_for('static', filename='images/' + image) }}" alt="{{ title }}">
+            <img src="{{ url_for('static', filename='images/' + image) }}" alt="{{ title }}" loading="lazy">
         </div>
         {% endif %}
         
         {% if audio %}
         <div class="audio-section">
-            <button id="playButton" class="audio-player-btn">
-                <i class="fas fa-play"></i>
-            </button>
+            <div class="audio-player-container">
+                <button id="playButton" class="audio-player-btn" aria-label="播放/暫停">
+                    <i class="fas fa-play"></i>
+                </button>
+                <div class="audio-progress-container">
+                    <span class="audio-time" id="currentTime">0:00</span>
+                    <div class="audio-progress-bar" id="progressBar">
+                        <div class="audio-progress-filled" id="progressFilled"></div>
+                    </div>
+                    <span class="audio-time" id="duration">0:00</span>
+                </div>
+            </div>
             <audio id="audioPlayer" preload="auto">
                 <source src="{{ url_for('static', filename='audio/' + audio) }}" type="audio/mpeg">
                 您的瀏覽器不支援音訊播放
@@ -151,22 +160,32 @@
 }
 
 .audio-section {
-    text-align: center;
     margin: 20px 0;
     padding: 20px;
     position: relative;
+    background: rgba(0, 123, 255, 0.05);
+    border-radius: 15px;
+}
+
+.audio-player-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .audio-player-btn {
     background-color: #007bff;
     color: white;
     border: none;
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
     border-radius: 50%;
     font-size: 1.2em;
     cursor: pointer;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
@@ -185,13 +204,44 @@
 }
 
 .audio-player-btn i {
-    font-size: 1.4em;
+    font-size: 1.2em;
     line-height: 1;
-    width: 1.4em;
-    height: 1.4em;
+}
+
+.audio-progress-container {
+    flex: 1;
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 10px;
+}
+
+.audio-time {
+    font-size: 0.9em;
+    color: #666;
+    min-width: 40px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.audio-progress-bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(0, 123, 255, 0.2);
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.audio-progress-filled {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    border-radius: 3px;
+    width: 0;
+    transition: width 0.1s linear;
 }
 
 audio {
@@ -225,7 +275,42 @@ document.addEventListener('DOMContentLoaded', function() {
     const playButton = document.getElementById('playButton');
     const playIcon = playButton.querySelector('i');
     const overlay = document.getElementById('tapOverlay');
+    const progressBar = document.getElementById('progressBar');
+    const progressFilled = document.getElementById('progressFilled');
+    const currentTimeEl = document.getElementById('currentTime');
+    const durationEl = document.getElementById('duration');
     let hasFirstTap = false;
+
+    // 格式化時間
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    // 更新進度條
+    function updateProgress() {
+        const percent = (audio.currentTime / audio.duration) * 100;
+        progressFilled.style.width = percent + '%';
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+    }
+
+    // 設置音訊時長
+    audio.addEventListener('loadedmetadata', () => {
+        durationEl.textContent = formatTime(audio.duration);
+    });
+
+    // 更新當前時間
+    audio.addEventListener('timeupdate', updateProgress);
+
+    // 點擊進度條跳轉
+    progressBar.addEventListener('click', (e) => {
+        if (hasFirstTap) {
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = percent * audio.duration;
+        }
+    });
 
     function hideOverlay() {
         overlay.style.display = 'none';
@@ -241,6 +326,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }).catch(error => {
                 console.log('播放失敗:', error);
                 playIcon.className = 'fas fa-play';
+                // 顯示錯誤提示
+                showToast('音訊播放失敗，請稍後再試', 'error');
             });
         }
     }
@@ -253,7 +340,10 @@ document.addEventListener('DOMContentLoaded', function() {
             audio.pause();
             playIcon.className = 'fas fa-play';
         } else if (hasFirstTap) {
-            audio.play();
+            audio.play().catch(error => {
+                console.log('播放失敗:', error);
+                showToast('音訊播放失敗，請稍後再試', 'error');
+            });
             playIcon.className = 'fas fa-pause';
         }
     });
@@ -268,12 +358,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
     audio.addEventListener('ended', () => {
         playIcon.className = 'fas fa-play';
+        progressFilled.style.width = '0%';
+        currentTimeEl.textContent = '0:00';
     });
 
     // 監聽用戶互動事件來觸發播放
     document.addEventListener('touchstart', handleTap, { once: true });
     document.addEventListener('click', handleTap, { once: true });
 });
+
+// Toast 通知函數
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 100);
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
+}
 </script>
 {% endif %}
 {% endblock %}
