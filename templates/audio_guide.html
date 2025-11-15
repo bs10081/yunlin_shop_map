@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleTap(event) {
         console.log('點擊事件觸發', event.type);
         if (!hasFirstTap) {
-            audio.load();
+            // 移除 audio.load() 以避免與 play() 衝突
             audio.play().then(() => {
                 console.log('播放成功');
                 playIcon.className = 'fas fa-pause';
@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function attemptAutoPlay() {
         console.log('嘗試自動播放');
-        audio.load();
+        // 移除 audio.load() 以避免與 play() 衝突
         audio.play().then(() => {
             console.log('自動播放成功');
             playIcon.className = 'fas fa-pause';

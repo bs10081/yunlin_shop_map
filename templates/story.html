@@ -24,12 +24,9 @@
                 <button id="playButton" class="audio-player-btn" aria-label="播放/暫停">
                     <i class="fas fa-play"></i>
                 </button>
-                <div class="audio-progress-container">
-                    <span class="audio-time" id="currentTime">0:00</span>
-                    <div class="audio-progress-bar" id="progressBar">
-                        <div class="audio-progress-filled" id="progressFilled"></div>
-                    </div>
-                    <span class="audio-time" id="duration">0:00</span>
+                <span class="audio-time" id="currentTime">0:00</span>
+                <div class="audio-progress-bar" id="progressBar">
+                    <div class="audio-progress-filled" id="progressFilled"></div>
                 </div>
             </div>
             <audio id="audioPlayer" preload="auto">
@@ -208,18 +205,11 @@
     line-height: 1;
 }
 
-.audio-progress-container {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
 .audio-time {
-    font-size: 0.9em;
+    font-size: 0.95em;
     color: #666;
-    min-width: 40px;
-    text-align: center;
+    min-width: 45px;
+    text-align: left;
     font-weight: 500;
 }
 
@@ -278,7 +268,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const progressBar = document.getElementById('progressBar');
     const progressFilled = document.getElementById('progressFilled');
     const currentTimeEl = document.getElementById('currentTime');
-    const durationEl = document.getElementById('duration');
     let hasFirstTap = false;
 
     // 格式化時間
@@ -294,11 +283,6 @@ document.addEventListener('DOMContentLoaded', function() {
         progressFilled.style.width = percent + '%';
         currentTimeEl.textContent = formatTime(audio.currentTime);
     }
-
-    // 設置音訊時長
-    audio.addEventListener('loadedmetadata', () => {
-        durationEl.textContent = formatTime(audio.duration);
-    });
 
     // 更新當前時間
     audio.addEventListener('timeupdate', updateProgress);
@@ -318,7 +302,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function handleTap(event) {
         if (!hasFirstTap) {
-            audio.load();
+            // 移除 audio.load() 以避免與 play() 衝突
+            // preload="auto" 已經會自動載入音訊
             audio.play().then(() => {
                 playIcon.className = 'fas fa-pause';
                 hideOverlay();
