@@ -18,6 +18,8 @@ export default function Navbar() {
     { path: '/map', label: '80s 地圖', icon: 'fa-map-marked-alt', special: true },
     { path: '/quests', label: '任務中心', icon: 'fa-scroll' },
     { path: '/photos', label: '照片牆', icon: 'fa-camera-retro' },
+    { path: '/leaderboard', label: '排行榜', icon: 'fa-trophy' },
+    { path: '/coupons', label: '優惠券', icon: 'fa-ticket-alt' },
     { path: '/profile', label: '我的冒險', icon: 'fa-user-astronaut', special: true },
   ];
 

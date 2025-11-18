@@ -6,6 +6,7 @@ import ErrorMessage from '@/components/ErrorMessage';
 import AudioPlayer from '@/components/AudioPlayer';
 import CheckInButton from '@/components/CheckInButton';
 import PhotoUpload from '@/components/PhotoUpload';
+import Comments from '@/components/Comments';
 import { LazyImage } from '@/components/LazyImage';
 import type { Category } from '@/types';
 
@@ -160,6 +161,16 @@ export default function Story() {
             )}
           </div>
         )}
+
+        {/* Comments Section */}
+        <div className="mt-8">
+          <Comments
+            locationId={id!}
+            locationName={item.title}
+            username={`探險家${level}`}
+            level={level}
+          />
+        </div>
       </article>
 
       {/* Decorative Elements */}

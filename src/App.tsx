@@ -10,6 +10,8 @@ import AudioGuide from './pages/AudioGuide';
 import Profile from './pages/Profile';
 import Quests from './pages/Quests';
 import PhotoWall from './pages/PhotoWall';
+import Leaderboard from './pages/Leaderboard';
+import Coupons from './pages/Coupons';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -23,6 +25,8 @@ function App() {
         <Route path="profile" element={<Profile />} />
         <Route path="quests" element={<Quests />} />
         <Route path="photos" element={<PhotoWall />} />
+        <Route path="leaderboard" element={<Leaderboard />} />
+        <Route path="coupons" element={<Coupons />} />
       </Route>
       <Route path="/map" element={<Map />} />
       <Route path="/story/:category/:id" element={<Story />} />
