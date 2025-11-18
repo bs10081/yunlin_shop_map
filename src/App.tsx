@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Food from './pages/Food';
 import Culture from './pages/Culture';
 import Shopping from './pages/Shopping';
+import Map from './pages/Map';
 import Story from './pages/Story';
 import AudioGuide from './pages/AudioGuide';
 import NotFound from './pages/NotFound';
@@ -17,6 +18,7 @@ function App() {
         <Route path="culture" element={<Culture />} />
         <Route path="shopping" element={<Shopping />} />
       </Route>
+      <Route path="/map" element={<Map />} />
       <Route path="/story/:category/:id" element={<Story />} />
       <Route path="/audio-guide/:category/:id" element={<AudioGuide />} />
       <Route path="*" element={<NotFound />} />

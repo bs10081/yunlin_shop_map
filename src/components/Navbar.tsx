@@ -14,6 +14,7 @@ export default function Navbar() {
     { path: '/food', label: '美食地圖', icon: 'fa-utensils' },
     { path: '/culture', label: '文化景點', icon: 'fa-landmark' },
     { path: '/shopping', label: '特色商店', icon: 'fa-store' },
+    { path: '/map', label: '80s 地圖', icon: 'fa-map-marked-alt', special: true },
   ];
 
   return (
@@ -37,11 +38,22 @@ export default function Navbar() {
                 <Link
                   to={link.path}
                   className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-                    isActive(link.path)
+                    (link as any).special && isActive(link.path)
+                      ? 'bg-gradient-to-r from-retro-pink to-retro-purple text-white font-bold shadow-lg'
+                      : isActive(link.path)
                       ? 'bg-primary-100 text-primary-700 font-medium'
+                      : (link as any).special
+                      ? 'bg-gradient-to-r from-gray-700 to-gray-800 text-neon-cyan hover:from-retro-pink hover:to-retro-purple hover:text-white'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                   aria-current={isActive(link.path) ? 'page' : undefined}
+                  style={
+                    (link as any).special && isActive(link.path)
+                      ? {
+                          textShadow: '0 0 10px rgba(255, 0, 110, 0.8)',
+                        }
+                      : undefined
+                  }
                 >
                   <i className={`fas ${link.icon}`} aria-hidden="true"></i>
                   <span>{link.label}</span>
@@ -74,8 +86,12 @@ export default function Navbar() {
                   <Link
                     to={link.path}
                     className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
-                      isActive(link.path)
+                      (link as any).special && isActive(link.path)
+                        ? 'bg-gradient-to-r from-retro-pink to-retro-purple text-white font-bold'
+                        : isActive(link.path)
                         ? 'bg-primary-100 text-primary-700 font-medium'
+                        : (link as any).special
+                        ? 'bg-gradient-to-r from-gray-700 to-gray-800 text-neon-cyan'
                         : 'text-gray-700 hover:bg-gray-100'
                     }`}
                     onClick={() => setIsMenuOpen(false)}
