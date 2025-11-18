@@ -8,26 +8,162 @@
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 font-sans;
+    @apply bg-gradient-to-b from-gray-900 via-purple-900 to-gray-900 text-white font-sans;
+    background-attachment: fixed;
   }
 
   * {
-    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-pink focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900;
   }
 }
 
 @layer components {
+  /* 80s Retro Grid Background */
+  .retro-page-bg {
+    @apply relative min-h-screen;
+    background: linear-gradient(180deg, #0f0f23 0%, #1a1a2e 50%, #0f0f23 100%);
+  }
+
+  .retro-page-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+      linear-gradient(rgba(255, 0, 110, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 0, 110, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: gridSlide 20s linear infinite;
+    pointer-events: none;
+    opacity: 0.3;
+  }
+
+  /* CRT Scanline Effect */
+  .retro-page-bg::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent 50%,
+      rgba(0, 0, 0, 0.05) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    animation: scanline 8s linear infinite;
+  }
+
+  /* Neon Text Effect */
+  .neon-text {
+    text-shadow:
+      0 0 10px currentColor,
+      0 0 20px currentColor,
+      0 0 30px currentColor,
+      0 0 40px currentColor;
+  }
+
+  .neon-text-pink {
+    @apply text-neon-pink;
+    text-shadow:
+      0 0 10px #ff10f0,
+      0 0 20px #ff10f0,
+      0 0 30px #ff10f0,
+      0 0 40px #ff006e;
+  }
+
+  .neon-text-cyan {
+    @apply text-neon-blue;
+    text-shadow:
+      0 0 10px #00d4ff,
+      0 0 20px #00d4ff,
+      0 0 30px #00d4ff,
+      0 0 40px #06ffa5;
+  }
+
+  /* Neon Border */
+  .neon-border {
+    border: 2px solid currentColor;
+    box-shadow:
+      0 0 10px currentColor,
+      inset 0 0 10px currentColor;
+  }
+
+  .neon-border-pink {
+    border: 2px solid #ff10f0;
+    box-shadow:
+      0 0 10px #ff10f0,
+      0 0 20px #ff006e,
+      inset 0 0 10px rgba(255, 16, 240, 0.3);
+  }
+
+  .neon-border-cyan {
+    border: 2px solid #00d4ff;
+    box-shadow:
+      0 0 10px #00d4ff,
+      0 0 20px #06ffa5,
+      inset 0 0 10px rgba(0, 212, 255, 0.3);
+  }
+
+  /* Retro Card */
+  .retro-card {
+    @apply relative overflow-hidden rounded-lg;
+    background: linear-gradient(135deg, rgba(131, 56, 236, 0.1) 0%, rgba(255, 0, 110, 0.1) 100%);
+    border: 2px solid rgba(255, 0, 110, 0.3);
+    box-shadow:
+      0 0 20px rgba(255, 0, 110, 0.2),
+      inset 0 0 20px rgba(131, 56, 236, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .retro-card:hover {
+    border-color: rgba(255, 0, 110, 0.6);
+    box-shadow:
+      0 0 30px rgba(255, 0, 110, 0.4),
+      0 0 50px rgba(131, 56, 236, 0.3),
+      inset 0 0 30px rgba(131, 56, 236, 0.2);
+    transform: translateY(-5px);
+  }
+
+  /* Retro Button */
+  .retro-button {
+    @apply font-retro font-bold uppercase tracking-wider px-6 py-3 rounded;
+    background: linear-gradient(45deg, #ff006e, #8338ec);
+    border: 2px solid #ff10f0;
+    box-shadow:
+      0 0 20px rgba(255, 16, 240, 0.5),
+      inset 0 0 10px rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .retro-button:hover {
+    box-shadow:
+      0 0 30px rgba(255, 16, 240, 0.8),
+      0 0 50px rgba(131, 56, 236, 0.5),
+      inset 0 0 20px rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+  }
+
   /* Custom scrollbar */
   .custom-scrollbar::-webkit-scrollbar {
     @apply w-2;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-gray-200 rounded;
+    @apply bg-gray-900;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-primary-500 rounded hover:bg-primary-600;
+    background: linear-gradient(180deg, #ff006e, #8338ec);
+    @apply rounded;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #ff10f0, #b537f2);
   }
 }
 
@@ -52,9 +188,11 @@
     @apply transition-all duration-300 ease-in-out;
   }
 
-  /* Glass morphism */
+  /* Glass morphism with 80s twist */
   .glass {
-    @apply bg-white/80 backdrop-blur-md;
+    background: rgba(26, 26, 46, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 0, 110, 0.2);
   }
 }
 
@@ -72,10 +210,10 @@
   animation: shimmer 2s infinite;
   background: linear-gradient(
     to right,
-    #f0f0f0 0%,
-    #e0e0e0 20%,
-    #f0f0f0 40%,
-    #f0f0f0 100%
+    rgba(131, 56, 236, 0.1) 0%,
+    rgba(255, 0, 110, 0.2) 20%,
+    rgba(131, 56, 236, 0.1) 40%,
+    rgba(131, 56, 236, 0.1) 100%
   );
   background-size: 1000px 100%;
 }
@@ -84,15 +222,58 @@
 input[type='range'] {
   -webkit-appearance: none;
   appearance: none;
-  @apply w-full h-1 bg-gray-300 rounded-lg cursor-pointer;
+  @apply w-full h-1 rounded-lg cursor-pointer;
+  background: linear-gradient(90deg, rgba(255, 0, 110, 0.3), rgba(131, 56, 236, 0.3));
 }
 
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  @apply w-4 h-4 bg-primary-600 rounded-full cursor-pointer hover:bg-primary-700 transition-colors;
+  @apply w-4 h-4 rounded-full cursor-pointer;
+  background: linear-gradient(45deg, #ff10f0, #00d4ff);
+  box-shadow: 0 0 10px #ff10f0, 0 0 20px #00d4ff;
+  transition: all 0.3s ease;
+}
+
+input[type='range']::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 20px #ff10f0, 0 0 30px #00d4ff;
+  transform: scale(1.2);
 }
 
 input[type='range']::-moz-range-thumb {
-  @apply w-4 h-4 bg-primary-600 rounded-full cursor-pointer hover:bg-primary-700 transition-colors border-0;
+  @apply w-4 h-4 rounded-full cursor-pointer border-0;
+  background: linear-gradient(45deg, #ff10f0, #00d4ff);
+  box-shadow: 0 0 10px #ff10f0, 0 0 20px #00d4ff;
+  transition: all 0.3s ease;
+}
+
+input[type='range']::-moz-range-thumb:hover {
+  box-shadow: 0 0 20px #ff10f0, 0 0 30px #00d4ff;
+  transform: scale(1.2);
+}
+
+/* Glitch Effect */
+@keyframes glitch {
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(-2px, -2px);
+  }
+  60% {
+    transform: translate(2px, 2px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
+  100% {
+    transform: translate(0);
+  }
+}
+
+.glitch:hover {
+  animation: glitch 0.3s infinite;
 }

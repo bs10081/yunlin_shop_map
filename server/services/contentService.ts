@@ -78,10 +78,18 @@ class ContentService {
       const id = metadata.id || path.basename(filename, '.md');
 
       const item: ContentItem = {
-        ...metadata,
         id,
+        title: metadata.title || '',
+        image: metadata.image,
+        audio: metadata.audio,
+        address: metadata.address,
+        phone: metadata.phone,
+        opening_hours: metadata.opening_hours,
+        website: metadata.website,
+        categories: metadata.categories,
         content: htmlContent,
         category,
+        story: false,
       };
 
       if (storyHtmlContent) {

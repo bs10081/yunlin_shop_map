@@ -1,13 +1,13 @@
 export interface ContentMetadata {
   title: string;
   id: string;
-  image: string;
-  audio: string;
-  address: string;
-  phone: string;
-  opening_hours: string;
-  website: string;
-  categories: string[];
+  image?: string;
+  audio?: string;
+  address?: string;
+  phone?: string;
+  opening_hours?: string;
+  website?: string;
+  categories?: string[];
   story?: boolean;
 }
 
