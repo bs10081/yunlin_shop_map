@@ -3,6 +3,7 @@ import { useContentItem } from '@/hooks/useContent';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ErrorMessage from '@/components/ErrorMessage';
 import AudioPlayer from '@/components/AudioPlayer';
+import CheckInButton from '@/components/CheckInButton';
 import { LazyImage } from '@/components/LazyImage';
 import type { Category } from '@/types';
 
@@ -82,6 +83,16 @@ export default function Story() {
 
         {/* Audio Player */}
         {item.audio && <AudioPlayer src={`/static/audio/${item.audio}`} />}
+
+        {/* Check-In Button */}
+        <div className="mb-8">
+          <CheckInButton
+            locationId={id!}
+            locationName={item.title}
+            category={category!}
+            requireGPS={false}
+          />
+        </div>
 
         {/* Story Content */}
         {item.story_content && (

@@ -49,6 +49,8 @@ export default {
         'neon-pulse': 'neonPulse 2s ease-in-out infinite',
         'grid-slide': 'gridSlide 20s linear infinite',
         'scanline': 'scanline 8s linear infinite',
+        'shimmer': 'shimmer 2s linear infinite',
+        'bounce-slow': 'bounceSlow 1s ease-in-out',
       },
       keyframes: {
         fadeIn: {
@@ -76,6 +78,20 @@ export default {
         scanline: {
           '0%': { transform: 'translateY(-100%)' },
           '100%': { transform: 'translateY(100vh)' },
+        },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
+        bounceSlow: {
+          '0%, 100%': {
+            transform: 'translateY(0)',
+            animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)',
+          },
+          '50%': {
+            transform: 'translateY(-10%)',
+            animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)',
+          },
         },
       },
       backgroundImage: {

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import UserProgress from './UserProgress';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,6 +16,8 @@ export default function Navbar() {
     { path: '/culture', label: '文化景點', icon: 'fa-landmark' },
     { path: '/shopping', label: '特色商店', icon: 'fa-store' },
     { path: '/map', label: '80s 地圖', icon: 'fa-map-marked-alt', special: true },
+    { path: '/quests', label: '任務中心', icon: 'fa-scroll' },
+    { path: '/profile', label: '我的冒險', icon: 'fa-user-astronaut', special: true },
   ];
 
   return (
@@ -39,7 +42,9 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <ul className="hidden md:flex space-x-2">
+          <div className="hidden md:flex items-center space-x-2">
+            <UserProgress />
+            <ul className="flex space-x-2">
             {navLinks.map((link) => (
               <li key={link.path}>
                 <Link
@@ -72,7 +77,8 @@ export default function Navbar() {
                 </Link>
               </li>
             ))}
-          </ul>
+            </ul>
+          </div>
 
           {/* Mobile Menu Button */}
           <button

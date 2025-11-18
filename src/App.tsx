@@ -7,6 +7,8 @@ import Shopping from './pages/Shopping';
 import Map from './pages/Map';
 import Story from './pages/Story';
 import AudioGuide from './pages/AudioGuide';
+import Profile from './pages/Profile';
+import Quests from './pages/Quests';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -17,6 +19,8 @@ function App() {
         <Route path="food" element={<Food />} />
         <Route path="culture" element={<Culture />} />
         <Route path="shopping" element={<Shopping />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="quests" element={<Quests />} />
       </Route>
       <Route path="/map" element={<Map />} />
       <Route path="/story/:category/:id" element={<Story />} />
