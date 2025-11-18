@@ -1,7 +1,8 @@
 // 遊戲進度管理服務
 
-import type { UserProgress, CheckIn, Badge, Achievement, Quest } from '@/types/game';
+import type { UserProgress, CheckIn, Badge, Achievement, Quest, DailyQuest } from '@/types/game';
 import type { Category } from '@/types';
+import { generateDailyQuests, shouldRefreshDailyQuests, getTodayString } from '@/data/dailyQuests';
 
 const STORAGE_KEY = 'yunlin_game_progress';
 
@@ -10,6 +11,7 @@ class GameService {
    * 初始化用戶進度
    */
   private initializeProgress(): UserProgress {
+    const today = getTodayString();
     return {
       level: 1,
       exp: 0,
@@ -18,6 +20,8 @@ class GameService {
       badges: [],
       achievements: [],
       quests: [],
+      dailyQuests: generateDailyQuests(),
+      lastDailyRefresh: today,
       stats: {
         totalCheckIns: 0,
         uniqueLocations: 0,
@@ -26,6 +30,15 @@ class GameService {
         shoppingVisited: 0,
         totalDistance: 0,
         totalTime: 0,
+      },
+      dailyStats: {
+        date: today,
+        checkIns: 0,
+        foodVisits: 0,
+        cultureVisits: 0,
+        shoppingVisits: 0,
+        photos: 0,
+        categories: [],
       },
       preferences: {
         notifications: true,
@@ -46,6 +59,41 @@ class GameService {
           ...ci,
           timestamp: new Date(ci.timestamp),
         }));
+
+        // 檢查是否需要刷新每日任務和統計
+        const today = getTodayString();
+        if (shouldRefreshDailyQuests(progress.lastDailyRefresh)) {
+          progress.dailyQuests = generateDailyQuests();
+          progress.lastDailyRefresh = today;
+          progress.dailyStats = {
+            date: today,
+            checkIns: 0,
+            foodVisits: 0,
+            cultureVisits: 0,
+            shoppingVisits: 0,
+            photos: 0,
+            categories: [],
+          };
+          this.saveProgress(progress);
+        }
+
+        // 兼容舊數據
+        if (!progress.dailyQuests) {
+          progress.dailyQuests = generateDailyQuests();
+          progress.lastDailyRefresh = today;
+        }
+        if (!progress.dailyStats) {
+          progress.dailyStats = {
+            date: today,
+            checkIns: 0,
+            foodVisits: 0,
+            cultureVisits: 0,
+            shoppingVisits: 0,
+            photos: 0,
+            categories: [],
+          };
+        }
+
         return progress;
       }
     } catch (error) {
@@ -98,6 +146,19 @@ class GameService {
     // 計算唯一地點數
     const uniqueLocations = new Set(progress.checkIns.map((ci) => ci.locationId));
     progress.stats.uniqueLocations = uniqueLocations.size;
+
+    // 更新每日統計
+    progress.dailyStats.checkIns++;
+    if (category === 'food') progress.dailyStats.foodVisits++;
+    if (category === 'culture') progress.dailyStats.cultureVisits++;
+    if (category === 'shopping') progress.dailyStats.shoppingVisits++;
+    if (photo) progress.dailyStats.photos++;
+    if (!progress.dailyStats.categories.includes(category)) {
+      progress.dailyStats.categories.push(category);
+    }
+
+    // 檢查每日任務完成
+    this.checkDailyQuests(progress);
 
     // 獎勵經驗值
     this.addExp(progress, 20);
@@ -226,6 +287,52 @@ class GameService {
       return progress.level;
     }
     return achievement.progress;
+  }
+
+  /**
+   * 檢查每日任務完成
+   */
+  checkDailyQuests(progress: UserProgress): DailyQuest[] {
+    const completed: DailyQuest[] = [];
+
+    progress.dailyQuests.forEach((quest) => {
+      if (quest.status !== 'completed') {
+        const req = quest.requirements[0];
+        let current = 0;
+
+        switch (req.type) {
+          case 'daily_checkins':
+            current = progress.dailyStats.checkIns;
+            break;
+          case 'daily_food':
+            current = progress.dailyStats.foodVisits;
+            break;
+          case 'daily_culture':
+            current = progress.dailyStats.cultureVisits;
+            break;
+          case 'daily_shopping':
+            current = progress.dailyStats.shoppingVisits;
+            break;
+          case 'daily_diverse':
+            current = progress.dailyStats.categories.length;
+            break;
+          case 'daily_photos':
+            current = progress.dailyStats.photos;
+            break;
+        }
+
+        req.current = current;
+
+        if (current >= req.target && quest.status !== 'completed') {
+          quest.status = 'completed';
+          quest.completedAt = new Date();
+          this.addExp(progress, quest.rewards.exp);
+          completed.push(quest);
+        }
+      }
+    });
+
+    return completed;
   }
 
   /**

@@ -9,6 +9,7 @@ import Story from './pages/Story';
 import AudioGuide from './pages/AudioGuide';
 import Profile from './pages/Profile';
 import Quests from './pages/Quests';
+import PhotoWall from './pages/PhotoWall';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Route path="shopping" element={<Shopping />} />
         <Route path="profile" element={<Profile />} />
         <Route path="quests" element={<Quests />} />
+        <Route path="photos" element={<PhotoWall />} />
       </Route>
       <Route path="/map" element={<Map />} />
       <Route path="/story/:category/:id" element={<Story />} />

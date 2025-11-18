@@ -2,11 +2,13 @@
 
 import { useGame } from '@/hooks/useGame';
 import { initializeQuests } from '@/data/quests';
+import { getDailyQuestProgress, getTimeUntilMidnight } from '@/data/dailyQuests';
 import Breadcrumb from '@/components/Breadcrumb';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Quests() {
   const { progress } = useGame();
+  const [timeLeft, setTimeLeft] = useState(getTimeUntilMidnight());
 
   // 初始化任務（如果還沒有）
   useEffect(() => {
@@ -14,6 +16,15 @@ export default function Quests() {
       progress.quests = initializeQuests();
     }
   }, [progress]);
+
+  // 倒計時器
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(getTimeUntilMidnight());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const breadcrumbItems = [
     { label: '首頁', path: '/' },
@@ -105,6 +116,16 @@ export default function Quests() {
     };
   };
 
+  // 每日任務進度
+  const dailyStats = {
+    dailyCheckIns: progress.dailyStats?.checkIns || 0,
+    dailyFoodVisits: progress.dailyStats?.foodVisits || 0,
+    dailyCultureVisits: progress.dailyStats?.cultureVisits || 0,
+    dailyShoppingVisits: progress.dailyStats?.shoppingVisits || 0,
+    dailyPhotos: progress.dailyStats?.photos || 0,
+    dailyCategories: new Set(progress.dailyStats?.categories || []),
+  };
+
   return (
     <div className="retro-page-bg min-h-screen">
       <Breadcrumb items={breadcrumbItems} />
@@ -129,87 +150,190 @@ export default function Quests() {
           </p>
         </div>
 
-        {/* Quest List */}
-        <div className="space-y-6">
-          {progress.quests.map((quest) => {
-            const progressData = getQuestProgress(quest);
-            const isCompleted = progressData.current >= progressData.target;
+        {/* 每日任務 */}
+        {progress.dailyQuests && progress.dailyQuests.length > 0 && (
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-retro font-black neon-text-pink">
+                <i className="fas fa-sun mr-3" aria-hidden="true"></i>
+                今日任務
+              </h2>
+              <div className="text-right">
+                <div className="text-sm text-gray-400 font-retro mb-1">刷新倒計時</div>
+                <div className="text-2xl font-retro font-black text-neon-cyan">
+                  {String(timeLeft.hours).padStart(2, '0')}:
+                  {String(timeLeft.minutes).padStart(2, '0')}:
+                  {String(timeLeft.seconds).padStart(2, '0')}
+                </div>
+              </div>
+            </div>
 
-            return (
-              <div
-                key={quest.id}
-                className={`retro-card p-6 border-2 ${
-                  isCompleted ? 'border-neon-green' : 'border-gray-700'
-                } ${isCompleted ? 'bg-gradient-to-r from-neon-green/10 to-neon-cyan/10' : ''}`}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start space-x-4 flex-1">
-                    <div className={`mt-1 ${getCategoryColor(quest.category)}`}>
-                      <i
-                        className={`fas ${getCategoryIcon(quest.category)} text-3xl`}
-                        aria-hidden="true"
-                      ></i>
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="text-xl font-retro font-black text-white">{quest.title}</h3>
-                        <span
-                          className={`text-xs font-retro px-2 py-1 rounded border ${getDifficultyColor(
-                            quest.difficulty
-                          )}`}
-                        >
-                          {getDifficultyLabel(quest.difficulty)}
-                        </span>
-                        {isCompleted && (
-                          <span className="text-xs font-retro px-2 py-1 rounded border border-neon-green text-neon-green">
-                            <i className="fas fa-check mr-1" aria-hidden="true"></i>
-                            完成
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-gray-300 mb-4">{quest.description}</p>
+            <div className="space-y-4">
+              {progress.dailyQuests.map((quest) => {
+                const progressData = getDailyQuestProgress(quest, dailyStats);
+                const isCompleted = quest.status === 'completed';
 
-                      {/* Progress Bar */}
-                      <div className="mb-4">
-                        <div className="flex justify-between text-sm mb-2">
-                          <span className="text-neon-cyan font-retro">
-                            進度: {progressData.current} / {progressData.target}
-                          </span>
-                          <span className="text-neon-purple font-retro">
-                            {Math.round(progressData.percent)}%
-                          </span>
+                return (
+                  <div
+                    key={quest.id}
+                    className={`retro-card p-6 border-2 ${
+                      isCompleted ? 'border-neon-green bg-gradient-to-r from-neon-green/10 to-neon-cyan/10' : 'border-neon-pink/50'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-start space-x-4 flex-1">
+                        <div className={getCategoryColor(quest.category)}>
+                          <i
+                            className={`fas ${getCategoryIcon(quest.category)} text-3xl`}
+                            aria-hidden="true"
+                          ></i>
                         </div>
-                        <div className="h-3 bg-gray-800 rounded-full overflow-hidden border border-neon-cyan/30">
-                          <div
-                            className={`h-full transition-all duration-500 ${
-                              isCompleted
-                                ? 'bg-gradient-to-r from-neon-green to-neon-cyan'
-                                : 'bg-gradient-to-r from-neon-cyan to-neon-purple'
-                            }`}
-                            style={{ width: `${progressData.percent}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Rewards */}
-                      <div className="flex items-center space-x-4 text-sm">
-                        <div className="flex items-center space-x-2">
-                          <i className="fas fa-star text-neon-pink" aria-hidden="true"></i>
-                          <span className="text-gray-300">+{quest.rewards.exp} EXP</span>
-                        </div>
-                        {quest.rewards.badges && quest.rewards.badges.length > 0 && (
-                          <div className="flex items-center space-x-2">
-                            <i className="fas fa-medal text-neon-purple" aria-hidden="true"></i>
-                            <span className="text-gray-300">徽章獎勵</span>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <h3 className="text-xl font-retro font-black text-white">{quest.title}</h3>
+                            <span
+                              className={`text-xs font-retro px-2 py-1 rounded border ${getDifficultyColor(
+                                quest.difficulty
+                              )}`}
+                            >
+                              {getDifficultyLabel(quest.difficulty)}
+                            </span>
+                            {isCompleted && (
+                              <span className="text-xs font-retro px-2 py-1 rounded border border-neon-green text-neon-green">
+                                <i className="fas fa-check mr-1" aria-hidden="true"></i>
+                                完成
+                              </span>
+                            )}
                           </div>
-                        )}
+                          <p className="text-gray-300 mb-4">{quest.description}</p>
+
+                          {/* Progress Bar */}
+                          <div className="mb-4">
+                            <div className="flex justify-between text-sm mb-2">
+                              <span className="text-neon-cyan font-retro">
+                                進度: {progressData.current} / {progressData.target}
+                              </span>
+                              <span className="text-neon-purple font-retro">
+                                {Math.round(progressData.percent)}%
+                              </span>
+                            </div>
+                            <div className="h-3 bg-gray-800 rounded-full overflow-hidden border border-neon-pink/30">
+                              <div
+                                className={`h-full transition-all duration-500 ${
+                                  isCompleted
+                                    ? 'bg-gradient-to-r from-neon-green to-neon-cyan'
+                                    : 'bg-gradient-to-r from-neon-pink to-neon-purple'
+                                }`}
+                                style={{ width: `${progressData.percent}%` }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Rewards */}
+                          <div className="flex items-center space-x-4 text-sm">
+                            <div className="flex items-center space-x-2">
+                              <i className="fas fa-star text-neon-pink" aria-hidden="true"></i>
+                              <span className="text-gray-300">+{quest.rewards.exp} EXP</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 普通任務 */}
+        <div>
+          <h2 className="text-3xl font-retro font-black mb-6 neon-text-cyan">
+            <i className="fas fa-list-check mr-3" aria-hidden="true"></i>
+            任務列表
+          </h2>
+
+          <div className="space-y-6">
+            {progress.quests.map((quest) => {
+              const progressData = getQuestProgress(quest);
+              const isCompleted = progressData.current >= progressData.target;
+
+              return (
+                <div
+                  key={quest.id}
+                  className={`retro-card p-6 border-2 ${
+                    isCompleted ? 'border-neon-green' : 'border-gray-700'
+                  } ${isCompleted ? 'bg-gradient-to-r from-neon-green/10 to-neon-cyan/10' : ''}`}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start space-x-4 flex-1">
+                      <div className={getCategoryColor(quest.category)}>
+                        <i
+                          className={`fas ${getCategoryIcon(quest.category)} text-3xl`}
+                          aria-hidden="true"
+                        ></i>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <h3 className="text-xl font-retro font-black text-white">{quest.title}</h3>
+                          <span
+                            className={`text-xs font-retro px-2 py-1 rounded border ${getDifficultyColor(
+                              quest.difficulty
+                            )}`}
+                          >
+                            {getDifficultyLabel(quest.difficulty)}
+                          </span>
+                          {isCompleted && (
+                            <span className="text-xs font-retro px-2 py-1 rounded border border-neon-green text-neon-green">
+                              <i className="fas fa-check mr-1" aria-hidden="true"></i>
+                              完成
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-gray-300 mb-4">{quest.description}</p>
+
+                        {/* Progress Bar */}
+                        <div className="mb-4">
+                          <div className="flex justify-between text-sm mb-2">
+                            <span className="text-neon-cyan font-retro">
+                              進度: {progressData.current} / {progressData.target}
+                            </span>
+                            <span className="text-neon-purple font-retro">
+                              {Math.round(progressData.percent)}%
+                            </span>
+                          </div>
+                          <div className="h-3 bg-gray-800 rounded-full overflow-hidden border border-neon-cyan/30">
+                            <div
+                              className={`h-full transition-all duration-500 ${
+                                isCompleted
+                                  ? 'bg-gradient-to-r from-neon-green to-neon-cyan'
+                                  : 'bg-gradient-to-r from-neon-cyan to-neon-purple'
+                              }`}
+                              style={{ width: `${progressData.percent}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Rewards */}
+                        <div className="flex items-center space-x-4 text-sm">
+                          <div className="flex items-center space-x-2">
+                            <i className="fas fa-star text-neon-pink" aria-hidden="true"></i>
+                            <span className="text-gray-300">+{quest.rewards.exp} EXP</span>
+                          </div>
+                          {quest.rewards.badges && quest.rewards.badges.length > 0 && (
+                            <div className="flex items-center space-x-2">
+                              <i className="fas fa-medal text-neon-purple" aria-hidden="true"></i>
+                              <span className="text-gray-300">徽章獎勵</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
         {/* Empty State */}

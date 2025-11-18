@@ -76,6 +76,8 @@ export interface UserProgress {
   badges: Badge[];
   achievements: Achievement[];
   quests: Quest[];
+  dailyQuests: DailyQuest[];
+  lastDailyRefresh?: string; // YYYY-MM-DD
   stats: {
     totalCheckIns: number;
     uniqueLocations: number;
@@ -84,6 +86,15 @@ export interface UserProgress {
     shoppingVisited: number;
     totalDistance: number; // 公尺
     totalTime: number; // 分鐘
+  };
+  dailyStats: {
+    date: string; // YYYY-MM-DD
+    checkIns: number;
+    foodVisits: number;
+    cultureVisits: number;
+    shoppingVisits: number;
+    photos: number;
+    categories: string[]; // 今天訪問過的分類
   };
   preferences: {
     role?: 'foodie' | 'historian' | 'explorer' | 'collector';

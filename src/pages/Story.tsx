@@ -1,9 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useContentItem } from '@/hooks/useContent';
+import { useGame } from '@/hooks/useGame';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ErrorMessage from '@/components/ErrorMessage';
 import AudioPlayer from '@/components/AudioPlayer';
 import CheckInButton from '@/components/CheckInButton';
+import PhotoUpload from '@/components/PhotoUpload';
 import { LazyImage } from '@/components/LazyImage';
 import type { Category } from '@/types';
 
@@ -11,6 +13,10 @@ export default function Story() {
   const { category, id } = useParams<{ category: Category; id: string }>();
   const navigate = useNavigate();
   const { item, loading, error } = useContentItem(category!, id!);
+  const { level, hasCheckedIn } = useGame();
+
+  // 檢查是否已打卡（用於決定是否顯示照片上傳）
+  const isCheckedIn = hasCheckedIn(id!);
 
   if (loading) {
     return <LoadingSpinner />;
@@ -93,6 +99,19 @@ export default function Story() {
             requireGPS={false}
           />
         </div>
+
+        {/* Photo Upload - 只在打卡後顯示 */}
+        {isCheckedIn && (
+          <div className="mb-8">
+            <PhotoUpload
+              locationId={id!}
+              locationName={item.title}
+              category={category!}
+              username={`探險家${level}`}
+              level={level}
+            />
+          </div>
+        )}
 
         {/* Story Content */}
         {item.story_content && (

@@ -17,6 +17,7 @@ export default function Navbar() {
     { path: '/shopping', label: '特色商店', icon: 'fa-store' },
     { path: '/map', label: '80s 地圖', icon: 'fa-map-marked-alt', special: true },
     { path: '/quests', label: '任務中心', icon: 'fa-scroll' },
+    { path: '/photos', label: '照片牆', icon: 'fa-camera-retro' },
     { path: '/profile', label: '我的冒險', icon: 'fa-user-astronaut', special: true },
   ];
 
